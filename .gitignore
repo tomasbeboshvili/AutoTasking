@@ -1,0 +1,30 @@
+# ⚠️ ARCHIVOS CON CLAVES API - NUNCA SUBIR A GIT ⚠️
+application.properties
+
+# Logs y archivos temporales
+*.log
+nohup.out
+app.log
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*~
+
+# Procesos Java
+*.pid
+
+# Archivos de testing local
+test-*
+local-*
+
+# Archivos de configuración con datos sensibles
+config.properties
+local.properties
+secrets.properties
+
+# Directorios de distribución
+dist/
+build/
+release/
