@@ -1,73 +1,89 @@
 # 🤖 Task Extraction API
 
-API inteligente para extracción automática de tareas usando Google Gemini AI. Perfecta para integración con n8n, Zapier y otras herramientas de automatización.
+Intelligent API for automated task extraction using Google Gemini AI. Perfect for integration with n8n, Zapier, and other automation tools.
 
-## 🌟 Características
+## 🌟 Features
 
-- ✅ **Extracción inteligente de tareas** usando Google Gemini AI
-- 🔗 **Lista para n8n** con endpoints específicos para webhooks
-- 📧 **Procesamiento de emails** automático
-- 🎯 **Múltiples formatos** (Todoist, Notion, ClickUp)
-- 🔒 **Sin base de datos** - completamente stateless
-- ⚡ **Ejecutable único** - solo necesitas Java y tu API key
+- ✅ **Smart task extraction** using Google Gemini AI
+- 🔗 **n8n ready** with specific webhook endpoints
+- 📧 **Automatic email processing** 
+- 🎯 **Multiple formats** (Todoist, Notion, ClickUp)
+- 🔒 **Database-free** - completely stateless
+- ⚡ **Single executable** - just need Java and your API key
 
-## 🚀 Inicio Rápido
+## 🚀 Quick Start
 
-### Requisitos
-- **Java 11 o superior** ([descargar aquí](https://adoptopenjdk.net/))
-- **Clave API de Google Gemini** ([obtener aquí](https://aistudio.google.com/app/apikey))
+### Requirements
+- **Java 11 or higher** ([download here](https://adoptopenjdk.net/))
+- **Google Gemini API Key** ([get it here](https://aistudio.google.com/app/apikey))
 
-### Instalación
+### Installation & Setup
 
-1. **Descargar** la última release o clonar este repositorio
-2. **Configurar API Key**:
+#### Option 1: Use Pre-compiled JAR (Recommended)
+1. **Download** the latest JAR from [releases/](releases/)
+2. **Configure API Key**:
    ```bash
    cp application.properties.template application.properties
-   # Edita application.properties y reemplaza TU_API_KEY_AQUI con tu clave real
+   # Edit application.properties and replace YOUR_API_KEY_HERE with your real key
    ```
-3. **Ejecutar**:
+3. **Run**:
    ```bash
    ./start-api.sh
    ```
-4. **Verificar**: http://localhost:8080/api/v1/health
-   - Deberías ver: `{"success":true,"message":"API funcionando correctamente"}`
 
-## 📡 Cómo Usar
+#### Option 2: Build from Source
+1. **Clone** this repository
+2. **Configure API Key** in `src/main/resources/application.properties`
+3. **Build & Run**:
+   ```bash
+   ./mvnw clean package -DskipTests
+   java -jar target/tasks-0.0.1-SNAPSHOT.jar
+   ```
 
-### 🎯 Extraer tareas de texto simple
+### Verification
+Visit: http://localhost:8080/api/v1/health
+You should see: `{"success":true,"message":"API working correctly"}`
+
+## 📡 API Endpoints
+
+### 🎯 Extract tasks from simple text
 ```bash
 curl -X POST http://localhost:8080/api/v1/analyze-text \
   -H "Content-Type: application/json" \
-  -d '{"text": "Mañana tengo que comprar leche y llamar al dentista"}'
+  -d '{"text": "Tomorrow I need to buy milk and call the dentist"}'
 ```
 
-### 📧 Procesar emails (ideal para n8n)
+### 📧 Process emails (ideal for n8n)
 ```bash
 curl -X POST http://localhost:8080/api/v1/webhook/email \
   -H "Content-Type: application/json" \
   -d '{
-    "subject": "Tareas pendientes",
-    "content": "Revisar código del proyecto y preparar presentación",
-    "sender": "jefe@empresa.com"
+    "subject": "Pending tasks",
+    "content": "Review project code and prepare presentation",
+    "sender": "boss@company.com"
   }'
 ```
 
-### 👁️ Vista previa rápida
+### 👁️ Quick preview
 ```bash
 curl -X POST http://localhost:8080/api/v1/analyze-preview \
   -H "Content-Type: application/json" \
-  -d '{"text": "Lista: 1. Comprar pan 2. Estudiar 3. Hacer ejercicio"}'
+  -d '{"text": "List: 1. Buy bread 2. Study 3. Exercise"}'
 ```
 
-## 🔧 Integración con n8n
+### 💚 Health check
+```bash
+curl http://localhost:8080/api/v1/health
+```
 
-### Configuración típica:
+## 🔧 n8n Integration
 
-1. **Gmail Trigger** → captura emails nuevos
-2. **HTTP Request** → envía a esta API 
-3. **Todoist/Notion** → crea las tareas extraídas
+### Typical workflow:
+1. **Gmail Trigger** → captures new emails
+2. **HTTP Request** → sends to this API 
+3. **Todoist/Notion** → creates extracted tasks
 
-### Ejemplo de nodo HTTP Request en n8n:
+### Example HTTP Request node in n8n:
 ```json
 {
   "url": "http://localhost:8080/api/v1/webhook/email",
@@ -80,18 +96,18 @@ curl -X POST http://localhost:8080/api/v1/analyze-preview \
 }
 ```
 
-## 📋 Formato de Respuesta
+## 📋 Response Format
 
-Todas las respuestas siguen este formato:
+All responses follow this format:
 ```json
 {
   "success": true,
-  "message": "Tareas extraídas correctamente",
+  "message": "Tasks extracted successfully",
   "data": [
     {
-      "title": "Comprar leche",
+      "title": "Buy milk",
       "dueDate": "2025-07-18",
-      "priority": "MEDIA",
+      "priority": "MEDIUM",
       "completed": false,
       "category": "general"
     }
@@ -101,48 +117,82 @@ Todas las respuestas siguen este formato:
 }
 ```
 
-## 🔐 Seguridad
+## 🛠️ Development
 
-- ⚠️ **IMPORTANTE**: No compartas tu clave API de Gemini
-- 🌐 CORS habilitado para permitir llamadas desde herramientas externas
-- 🔒 Para producción, considera añadir autenticación
+### Build from source:
+```bash
+./mvnw clean package -DskipTests
+```
+
+### Run in development mode:
+```bash
+./mvnw spring-boot:run
+```
+
+### Project structure:
+```
+src/
+├── main/java/tom/example/tasks/
+│   ├── controller/          # REST API endpoints
+│   ├── service/            # Business logic & Gemini AI integration
+│   ├── model/              # Data models
+│   └── dto/                # Data transfer objects
+└── main/resources/         # Configuration files
+```
+
+## 🔐 Security
+
+- ⚠️ **IMPORTANT**: Never share your Gemini API key
+- 🌐 CORS enabled for external tool integration
+- 🔒 For production, consider adding authentication
+- 🛡️ API keys are never included in this repository
 
 ## 🐛 Troubleshooting
 
-### La API no inicia
-- Verifica que Java 11+ esté instalado: `java -version`
-- Asegúrate de que el puerto 8080 esté libre
-- Revisa los logs en `app.log`
+### API won't start
+- Verify Java 11+ is installed: `java -version`
+- Ensure port 8080 is available
+- Check logs in terminal output
 
-### Error de API Key
-- Verifica que la clave esté configurada en `application.properties`
-- Asegúrate de que la clave sea válida en [Google AI Studio](https://aistudio.google.com/)
+### API Key errors
+- Verify key is configured in `application.properties`
+- Ensure key is valid at [Google AI Studio](https://aistudio.google.com/)
 
-### No extrae tareas correctamente
-- Usa texto claro y estructurado
-- Prueba con el endpoint `/analyze-preview` primero
-- Revisa que el texto tenga al menos 10 caracteres
+### Poor task extraction
+- Use clear, structured text
+- Try `/analyze-preview` endpoint first
+- Ensure text has at least 10 characters
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está licenciado bajo la **BSD 3-Clause License** - ver el archivo [LICENSE](LICENSE) para más detalles.
+This project is licensed under the **BSD 3-Clause License** - see the [LICENSE](LICENSE) file for details.
 
-### ⚠️ Términos importantes:
-- ✅ **Puedes usar, modificar y distribuir** este código
-- ✅ **Puedes usarlo comercialmente**
-- ⚠️ **DEBES incluir el aviso de copyright** en cualquier redistribución
-- ⚠️ **NO puedes usar mi nombre** para promocionar derivados sin permiso
+### ⚠️ Important terms:
+- ✅ **You can use, modify and distribute** this code
+- ✅ **Commercial use is allowed**
+- ⚠️ **You MUST include the copyright notice** in any redistribution
+- ⚠️ **You CANNOT use my name** to promote derivatives without permission
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
-**Tomas Beboshvili** - Desarrollo inicial
+**Tomas Beboshvili** - Initial development
 
-## 🙏 Reconocimientos
+## 🙏 Acknowledgments
 
-- Google Gemini AI por la capacidad de procesamiento de lenguaje natural
-- Spring Boot por el framework web
-- La comunidad de n8n por la inspiración de automatización
+- Google Gemini AI for natural language processing capabilities
+- Spring Boot for the web framework
+- The n8n community for automation inspiration
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-**Desarrollado para automatización inteligente con n8n** 🚀
+**Built for intelligent automation with n8n** 🚀

@@ -1,0 +1,14 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/todolist
+spring.datasource.username=tomasbeboshvili
+spring.datasource.password=6759
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Opcional: auto crear las tablas según tus entidades
+spring.jpa.hibernate.ddl-auto=update
+
+# Mostrar sentencias SQL en consola (opcional)
+spring.jpa.show-sql=true
+
+# Configuración de Google Gemini AI
+# Obtén tu API key en: https://aistudio.google.com/app/apikey
+gemini.api.key=TU_API_KEY_AQUI

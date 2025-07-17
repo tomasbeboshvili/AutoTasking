@@ -1,11 +1,11 @@
-# Configuración del servidor
+# Server configuration
 server.port=8080
 
 # =====================================
-# CONFIGURACIÓN DE GOOGLE GEMINI AI
+# GOOGLE GEMINI AI CONFIGURATION
 # =====================================
-# 1. Obtén tu API key en: https://aistudio.google.com/app/apikey
-# 2. Reemplaza TU_API_KEY_AQUI con tu clave real
-# 3. ⚠️  IMPORTANTE: NUNCA compartas este archivo con tu clave configurada
-# 4. ⚠️  NUNCA subas este archivo a repositorios públicos (GitHub, etc.)
-gemini.api.key=TU_API_KEY_AQUI
+# 1. Get your API key at: https://aistudio.google.com/app/apikey
+# 2. Replace YOUR_API_KEY_HERE with your real key
+# 3. ⚠️  IMPORTANT: NEVER share this file with your configured key
+# 4. ⚠️  NEVER upload this file to public repositories (GitHub, etc.)
+gemini.api.key=YOUR_API_KEY_HERE
