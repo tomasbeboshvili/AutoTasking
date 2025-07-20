@@ -78,6 +78,25 @@ curl http://localhost:8080/api/v1/health
 
 ## 🔧 n8n Integration
 
+### Ready-to-Use Workflows 🚀
+
+We provide **pre-built n8n workflows** in the `n8n-workflows/` directory:
+
+- **📧 Gmail to Todoist** - Automatically extract tasks from emails and create them in Todoist
+- **📝 Simple Text-to-Tasks** - Basic workflow for testing the API
+- **🔄 More workflows coming soon** - Notion, ClickUp, Slack integrations
+
+**Quick Start:**
+1. Download workflow JSON from `n8n-workflows/`
+2. Import into your n8n instance
+3. Configure credentials (Gmail, Todoist, etc.)
+4. Update API URL to your instance
+5. Activate and enjoy automated task creation!
+
+📚 **Full setup guide:** See `n8n-workflows/README.md`
+
+### Manual Integration
+
 ### Typical workflow:
 1. **Gmail Trigger** → captures new emails
 2. **HTTP Request** → sends to this API 

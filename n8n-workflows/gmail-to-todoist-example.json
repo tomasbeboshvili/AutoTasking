@@ -1,0 +1,226 @@
+{
+  "name": "Gmail to Tasks with AI Extraction",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "schedule-trigger",
+      "name": "Daily Schedule"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 15,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "gmail-get-messages",
+      "name": "Get Gmail Messages",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Your Gmail Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine all emails into a single text for AI processing\nconst emails = $input.all();\n\nlet combinedText = \"\";\nlet emailCount = 0;\n\nfor (const email of emails) {\n  const data = email.json;\n  \n  // Extract content from various possible fields\n  const content = data.snippet || data.body || data.content || data.text || \n                 data.textPlain || data.bodyText || data.message || \"\";\n  \n  // Extract sender information               \n  const from = data.from || data.sender || data.fromName || data.fromAddress || \n              data.senderName || data.fromEmail || \"Unknown Sender\";\n              \n  // Extract subject\n  const subject = data.subject || data.title || data.emailSubject || \n                 data.mailSubject || data.header || \"No Subject\";\n  \n  if (content && content.length > 10) {\n    combinedText += `\\n\\nEmail ${++emailCount} from ${from}:\\nSubject: ${subject}\\nContent: ${content}\\n---`;\n  }\n}\n\nreturn [{\n  json: {\n    combinedText: combinedText,\n    emailCount: emailCount,\n    hasContent: combinedText.length > 0,\n    processedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        0
+      ],
+      "id": "combine-emails",
+      "name": "Combine Email Texts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8080/api/v1/analyze-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.combinedText || 'No content' }}"
+            },
+            {
+              "name": "context",
+              "value": "mixed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "ai-task-extraction",
+      "name": "AI Task Extraction"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        768,
+        0
+      ],
+      "id": "split-tasks",
+      "name": "Split Tasks"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform AI-extracted tasks to Todoist format\nconst tasks = $input.all();\n\nreturn tasks.map(({ json: task }) => {\n  return {\n    json: {\n      content: task.title,\n      description: task.description || 'AI-generated task',\n      due_string: task.dueDate || null,\n      priority: task.priority === 'CRITICA' ? 4 : \n                task.priority === 'ALTA' ? 3 : \n                task.priority === 'MEDIA' ? 2 : 1,\n      labels: ['ai-generated'].concat(\n        Array.isArray(task.context) ? task.context : [task.context || 'mixed']\n      )\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "format-for-todoist",
+      "name": "Format for Todoist"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "project": {
+          "__rl": true,
+          "value": "YOUR_PROJECT_ID",
+          "mode": "list",
+          "cachedResultName": "Inbox"
+        },
+        "labels": "={{$json.labels}}",
+        "content": "={{ $json.content }}",
+        "options": {
+          "description": "={{ $json.description }}",
+          "dueDateTime": "={{ $json.due_date }}",
+          "priority": "={{ $json.priority }}"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "create-todoist-tasks",
+      "name": "Create Todoist Tasks",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "YOUR_TODOIST_CREDENTIAL_ID",
+          "name": "Your Todoist Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Schedule": {
+      "main": [
+        [
+          {
+            "node": "Get Gmail Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Gmail Messages": {
+      "main": [
+        [
+          {
+            "node": "Combine Email Texts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Email Texts": {
+      "main": [
+        [
+          {
+            "node": "AI Task Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Task Extraction": {
+      "main": [
+        [
+          {
+            "node": "Split Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Tasks": {
+      "main": [
+        [
+          {
+            "node": "Format for Todoist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format for Todoist": {
+      "main": [
+        [
+          {
+            "node": "Create Todoist Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
