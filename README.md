@@ -95,6 +95,39 @@ We provide **pre-built n8n workflows** in the `n8n-workflows/` directory:
 
 📚 **Full setup guide:** See `n8n-workflows/README.md`
 
+### 🌐 Making Your API Accessible to n8n
+
+For n8n to reach your local API, you have several options:
+
+#### Option 1: ngrok (Recommended for testing) 🚀
+```bash
+# Install ngrok (https://ngrok.com/)
+# Start your API
+./start-api.sh
+
+# In another terminal, expose it publicly
+ngrok http 8080
+
+# Use the ngrok URL in your n8n workflow
+# Example: https://abc123.ngrok-free.app/api/v1/analyze-text
+```
+
+#### Option 2: Deploy to Cloud ☁️
+- **Heroku**: Use the included `Procfile` for easy deployment
+- **DigitalOcean App Platform**: Direct deployment from GitHub
+- **AWS/GCP**: Deploy as container or serverless function
+- **Railway/Render**: Simple deployment with automatic HTTPS
+
+#### Option 3: VPS/Server 🖥️
+```bash
+# Deploy on your server
+scp releases/task-extraction-api.jar user@your-server:/app/
+ssh user@your-server "cd /app && java -jar task-extraction-api.jar"
+
+# Use your server IP/domain in n8n
+# Example: https://your-domain.com/api/v1/analyze-text
+```
+
 ### Manual Integration
 
 ### Typical workflow:

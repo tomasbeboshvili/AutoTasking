@@ -48,6 +48,25 @@ This directory contains pre-built n8n workflows that demonstrate how to integrat
    - Local: `http://localhost:8080/api/v1/analyze-text`
    - Remote: `https://your-domain.com/api/v1/analyze-text`
 
+⚠️ **Important for Local Development:**
+If your API is running locally (`localhost:8080`), n8n won't be able to reach it directly. You need to:
+
+**Option A: Use ngrok (Recommended for testing)**
+```bash
+# Start your API first
+./start-api.sh
+
+# In another terminal:
+ngrok http 8080
+
+# Copy the ngrok URL (e.g., https://abc123.ngrok-free.app)
+# Use: https://abc123.ngrok-free.app/api/v1/analyze-text
+```
+
+**Option B: Deploy your API to cloud**
+- See main README for deployment options (Heroku, DigitalOcean, etc.)
+- Use the public URL in your n8n workflow
+
 #### 5. Test & Activate:
 1. Click **Execute Workflow** to test
 2. Check that tasks are created in Todoist
